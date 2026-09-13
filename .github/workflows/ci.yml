@@ -17,10 +17,10 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configurar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
@@ -28,7 +28,7 @@ jobs:
         run: pip install poetry
 
       - name: Instalar dependências
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --no-root
 
       - name: Executar Ruff
         run: poetry run ruff check .
@@ -55,10 +55,10 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Configurar Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.13"
 
@@ -66,7 +66,7 @@ jobs:
         run: pip install poetry
 
       - name: Instalar dependências
-        run: poetry install --no-interaction
+        run: poetry install --no-interaction --no-root
 
       - name: Criar arquivo .env
         run: |
@@ -93,7 +93,7 @@ jobs:
 
     steps:
       - name: Checkout do código
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build da imagem Docker
         run: docker build -t api-consultas-medicas .
