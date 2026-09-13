@@ -1,0 +1,99 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar Poetry
+        run: pip install poetry
+
+      - name: Instalar dependências
+        run: poetry install --no-interaction
+
+      - name: Executar Ruff
+        run: poetry run ruff check .
+
+  tests:
+    name: Testes
+    runs-on: ubuntu-latest
+    needs: lint
+
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_DB: consultas_medicas
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres -d consultas_medicas"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Configurar Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Instalar Poetry
+        run: pip install poetry
+
+      - name: Instalar dependências
+        run: poetry install --no-interaction
+
+      - name: Criar arquivo .env
+        run: |
+          cat <<EOF > .env
+          DJANGO_SECRET_KEY=chave-temporaria-ci
+          DEBUG=False
+          POSTGRES_DB=consultas_medicas
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=postgres
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          EOF
+
+      - name: Executar migrations
+        run: poetry run python manage.py migrate
+
+      - name: Executar testes
+        run: poetry run python manage.py test
+
+  build:
+    name: Build Docker
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - name: Checkout do código
+        uses: actions/checkout@v4
+
+      - name: Build da imagem Docker
+        run: docker build -t api-consultas-medicas .
