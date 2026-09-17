@@ -243,6 +243,86 @@ O procedimento detalhado está documentado em:
 
 ---
 
+## CORS
+
+Foi adotada uma política restritiva de CORS baseada em uma lista explícita de origens permitidas.
+
+A configuração é obtida por meio da variável de ambiente `CORS_ALLOWED_ORIGINS`, permitindo que cada ambiente possua suas próprias origens autorizadas sem necessidade de alteração no código.
+
+No ambiente local, são permitidas:
+
+```env
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
+
+A aplicação não utiliza `CORS_ALLOW_ALL_ORIGINS`, evitando a liberação da API para requisições provenientes de qualquer origem.
+
+Para staging e produção, devem ser configurados exclusivamente os domínios correspondentes ao frontend autorizado.
+
+Essa abordagem reduz a superfície de exposição da API e mantém a configuração de segurança específica por ambiente.
+
+## Logging e proteção de dados sensíveis
+
+A aplicação possui uma configuração de logging voltada para o monitoramento de acessos e erros da API.
+
+### Logs de acesso
+
+As requisições da API são registradas pelo middleware `RequestLoggingMiddleware` utilizando o logger `api.access`.
+
+São registrados:
+
+* método HTTP;
+* caminho da requisição;
+* código de status da resposta.
+
+Exemplo:
+
+```text
+INFO api.access GET /api/consultas/ 200
+INFO api.access POST /api/consultas/ 400
+```
+
+### Logs de erros
+
+Os erros relacionados às requisições Django são tratados pelo logger `django.request`, configurado no nível `ERROR`.
+
+Essa separação permite distinguir logs de acesso dos registros de erros da aplicação.
+
+### Proteção de dados sensíveis
+
+A aplicação não registra intencionalmente:
+
+* senhas;
+* tokens JWT;
+* cabeçalho `Authorization`;
+* corpo (`request.body`) das requisições;
+* credenciais do banco de dados.
+
+O middleware registra somente método HTTP, caminho e código de status, evitando a exposição desnecessária de informações sensíveis nos logs.
+
+As credenciais e demais configurações sensíveis são mantidas em variáveis de ambiente e não fazem parte dos logs da aplicação.
+
+### Configuração
+
+Os logs são direcionados para o console por meio de um `StreamHandler`. Essa abordagem é compatível com a execução local e com ambientes containerizados, nos quais os logs podem ser coletados pela infraestrutura de execução.
+
+### Limitação
+
+A proteção contra exposição de dados sensíveis depende também de que novos componentes da aplicação não adicionem informações confidenciais aos logs. Portanto, alterações futuras que adicionem logging devem seguir a mesma política de minimização de dados.
+
+### Decisão
+
+Foi escolhida uma allowlist explícita de origens em vez de permitir todas as origens.
+
+### Motivo
+
+A configuração permite maior controle sobre quais aplicações podem realizar requisições cross-origin à API e evita uma política excessivamente permissiva em ambientes produtivos.
+
+### Consideração para produção
+
+As URLs de staging e produção deverão ser configuradas como variáveis de ambiente no ambiente de execução, sem serem armazenadas diretamente no código-fonte.
+
+
 ## 19. Decisões futuras
 
 Algumas funcionalidades podem ser adicionadas posteriormente:

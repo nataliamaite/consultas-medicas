@@ -150,8 +150,12 @@ MAILERS = {
 }
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    origin.strip()
+    for origin in env(
+        "CORS_ALLOWED_ORIGINS",
+        default=""
+    ).split(",")
+    if origin.strip()
 ]
 
 REST_FRAMEWORK = {
@@ -193,28 +197,24 @@ SPECTACULAR_SETTINGS = {
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-
     "formatters": {
-        "simple": {
-            "format": "{asctime} {levelname} {name} {message}",
+        "standard": {
+            "format": "{levelname} {asctime} {name} {message}",
             "style": "{",
         },
     },
-
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "simple",
+            "formatter": "standard",
         },
     },
-
     "loggers": {
         "api.access": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": False,
         },
-
         "django.request": {
             "handlers": ["console"],
             "level": "ERROR",

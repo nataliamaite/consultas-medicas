@@ -140,6 +140,17 @@ Entre as medidas implementadas:
 
 O Django ORM utiliza consultas parametrizadas, reduzindo o risco de SQL Injection nas operações realizadas pela aplicação.
 
+### Logging
+
+A API possui logging separado para acessos e erros:
+
+* `api.access` — registra método HTTP, endpoint e status da resposta;
+* `django.request` — registra erros de requisição em nível `ERROR`.
+
+Os logs são enviados para o console, facilitando sua utilização em ambientes Docker e AWS.
+
+Para evitar exposição de informações sensíveis, a aplicação não registra intencionalmente senhas, tokens JWT, cabeçalhos de autenticação, corpo das requisições ou credenciais do banco de dados.
+
 ## Documentação da API
 
 A API possui documentação OpenAPI gerada automaticamente.
@@ -518,22 +529,28 @@ api-consultas-medicas/
 └── pyproject.toml
 ```
 
-## Melhorias futuras
+### CORS
 
-Possíveis evoluções do projeto:
+A API utiliza uma política restritiva de CORS, permitindo somente as origens explicitamente configuradas por variável de ambiente.
 
-* integração com Asaas;
-* implementação de arquitetura para split de pagamentos;
-* monitoramento e métricas;
-* health check dedicado;
-* Blue/Green Deployment;
-* Canary Deployment;
-* cache;
-* paginação;
-* filtros avançados;
-* rate limiting;
-* melhoria da observabilidade;
-* expansão da documentação da API.
+A configuração é feita por meio da variável:
+
+```env
+CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
+
+O projeto não utiliza `CORS_ALLOW_ALL_ORIGINS`, evitando que requisições de qualquer origem sejam autorizadas.
+
+Em ambientes de staging e produção, as origens permitidas devem ser substituídas pelos respectivos domínios da aplicação, mantendo a política de allowlist.
+
+Exemplo:
+
+```env
+CORS_ALLOWED_ORIGINS=https://staging.exemplo.com
+```
+
+As configurações específicas de cada ambiente devem ser mantidas fora do código-fonte e fornecidas por variáveis de ambiente.
+
 
 ## Autora
 

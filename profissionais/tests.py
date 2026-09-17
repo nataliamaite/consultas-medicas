@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -313,13 +314,32 @@ class ConsultaAPITests(APITestCase):
 
 
 class AuthenticationAPITests(APITestCase):
-
-    def test_api_sem_autenticacao(self):
-        url = reverse("profissional-list")
-
-        response = self.client.get(url)
-
-        self.assertEqual(
-            response.status_code,
-            status.HTTP_401_UNAUTHORIZED
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="teste",
+            password="senha123",
         )
+
+    def test_profissionais_requires_authentication(self):
+        response = self.client.get("/api/profissionais/")
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_consultas_requires_authentication(self):
+        response = self.client.get("/api/consultas/")
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_authenticated_user_can_list_profissionais(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.get("/api/profissionais/")
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_authenticated_user_can_list_consultas(self):
+        self.client.force_authenticate(user=self.user)
+
+        response = self.client.get("/api/consultas/")
+
+        self.assertEqual(response.status_code, 200)
