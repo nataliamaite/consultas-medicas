@@ -1,0 +1,67 @@
+{
+  "family": "consultas-medicas",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::437287030070:role/ecsTaskExecutionRole",
+  "containerDefinitions": [
+    {
+      "name": "consultas-medicas",
+      "image": "437287030070.dkr.ecr.us-east-1.amazonaws.com/consultas-medicas:d8c8d98",
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "DEBUG",
+          "value": "False"
+        },
+        {
+          "name": "POSTGRES_DB",
+          "value": "consultas_medicas"
+        },
+        {
+          "name": "POSTGRES_USER",
+          "value": "postgres"
+        },
+        {
+          "name": "POSTGRES_HOST",
+          "value": "consultas-medicas-db.cq9ia0u2cis3.us-east-1.rds.amazonaws.com"
+        },
+        {
+          "name": "POSTGRES_PORT",
+          "value": "5432"
+        },
+        {
+          "name": "ALLOWED_HOSTS",
+          "value": "*"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DJANGO_SECRET_KEY",
+          "valueFrom": "arn:aws:ssm:us-east-1:437287030070:parameter/consultas-medicas/prod/DJANGO_SECRET_KEY"
+        },
+        {
+          "name": "POSTGRES_PASSWORD",
+          "valueFrom": "arn:aws:ssm:us-east-1:437287030070:parameter/consultas-medicas/prod/POSTGRES_PASSWORD"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/consultas-medicas",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      }
+    }
+  ]
+}
