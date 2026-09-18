@@ -163,6 +163,16 @@ A documentação permite:
 - autenticar utilizando JWT;
 - executar requisições diretamente pela interface do Swagger.
 
+### Integração com pagamentos
+
+A aplicação possui uma proposta de arquitetura para futura integração com o Asaas, incluindo possibilidade de mock, processamento de pagamentos, webhooks e split payment.
+
+A integração real ainda não faz parte da versão atual.
+
+Detalhes da arquitetura:
+
+`docs/asaas.md`
+
 ### Swagger UI
 
 Interface interativa para explorar e testar a API:
