@@ -1,0 +1,110 @@
+{
+    "taskDefinitionArn": "arn:aws:ecs:us-east-1:437287030070:task-definition/consultas-medicas:1",
+    "containerDefinitions": [
+        {
+            "name": "consultas-medicas",
+            "image": "437287030070.dkr.ecr.us-east-1.amazonaws.com/consultas-medicas:85da458",
+            "cpu": 0,
+            "portMappings": [
+                {
+                    "containerPort": 8000,
+                    "hostPort": 8000,
+                    "protocol": "tcp"
+                }
+            ],
+            "essential": true,
+            "environment": [
+                {
+                    "name": "POSTGRES_USER",
+                    "value": "postgres"
+                },
+                {
+                    "name": "POSTGRES_PORT",
+                    "value": "5432"
+                },
+                {
+                    "name": "POSTGRES_DB",
+                    "value": "consultas_medicas"
+                },
+                {
+                    "name": "DEBUG",
+                    "value": "False"
+                },
+                {
+                    "name": "POSTGRES_HOST",
+                    "value": "consultas-medicas-db.cq9ia0u2cis3.us-east-1.rds.amazonaws.com"
+                },
+                {
+                    "name": "ALLOWED_HOSTS",
+                    "value": "*"
+                }
+            ],
+            "mountPoints": [],
+            "volumesFrom": [],
+            "secrets": [
+                {
+                    "name": "DJANGO_SECRET_KEY",
+                    "valueFrom": "arn:aws:ssm:us-east-1:437287030070:parameter/consultas-medicas/prod/DJANGO_SECRET_KEY"
+                },
+                {
+                    "name": "POSTGRES_PASSWORD",
+                    "valueFrom": "arn:aws:ssm:us-east-1:437287030070:parameter/consultas-medicas/prod/POSTGRES_PASSWORD"
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "/ecs/consultas-medicas",
+                    "awslogs-region": "us-east-1",
+                    "awslogs-stream-prefix": "ecs"
+                }
+            },
+            "systemControls": []
+        }
+    ],
+    "family": "consultas-medicas",
+    "executionRoleArn": "arn:aws:iam::437287030070:role/ecsTaskExecutionRole",
+    "networkMode": "awsvpc",
+    "revision": 1,
+    "volumes": [],
+    "status": "ACTIVE",
+    "requiresAttributes": [
+        {
+            "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+        },
+        {
+            "name": "ecs.capability.execution-role-awslogs"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.ecr-auth"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+        },
+        {
+            "name": "ecs.capability.execution-role-ecr-pull"
+        },
+        {
+            "name": "ecs.capability.secrets.ssm.environment-variables"
+        },
+        {
+            "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+        },
+        {
+            "name": "ecs.capability.task-eni"
+        }
+    ],
+    "placementConstraints": [],
+    "compatibilities": [
+        "EC2",
+        "FARGATE",
+        "MANAGED_INSTANCES"
+    ],
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "cpu": "256",
+    "memory": "512",
+    "registeredAt": "2026-09-17T20:02:26.482000-03:00",
+    "registeredBy": "arn:aws:iam::437287030070:root"
+}

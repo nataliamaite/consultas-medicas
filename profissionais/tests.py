@@ -36,18 +36,36 @@ class ProfissionalAPITests(APITestCase):
             "contato": "83988887777",
         }
 
-        response = self.client.post(url, data, format="json")
+        response = self.client.post(
+            url,
+            data,
+            format="json"
+        )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(response.data["nome_social"], "João Santos")
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_201_CREATED
+        )
+
+        self.assertEqual(
+            response.data["nome_social"],
+            "João Santos"
+        )
 
     def test_listar_profissionais(self):
         url = reverse("profissional-list")
 
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
+        self.assertEqual(
+            len(response.data),
+            1
+        )
 
     def test_buscar_profissional(self):
         url = reverse(
@@ -57,7 +75,11 @@ class ProfissionalAPITests(APITestCase):
 
         response = self.client.get(url)
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
         self.assertEqual(
             response.data["nome_social"],
             "Maria Silva"
@@ -82,7 +104,11 @@ class ProfissionalAPITests(APITestCase):
             format="json"
         )
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_200_OK
+        )
+
         self.assertEqual(
             response.data["nome_social"],
             "Maria Silva Santos"
@@ -113,6 +139,40 @@ class ProfissionalAPITests(APITestCase):
         data = {
             "nome_social": "",
             "profissao": "",
+        }
+
+        response = self.client.post(
+            url,
+            data,
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
+    def test_buscar_profissional_inexistente(self):
+        url = reverse(
+            "profissional-detail",
+            args=[99999]
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+
+    def test_profissional_com_campos_somente_espacos(self):
+        url = reverse("profissional-list")
+
+        data = {
+            "nome_social": "   ",
+            "profissao": "Médica",
+            "endereco": "Rua Central, 100",
+            "contato": "83999999999",
         }
 
         response = self.client.post(
@@ -279,25 +339,6 @@ class ConsultaAPITests(APITestCase):
                 self.profissional.id
             )
 
-    def test_consulta_com_profissional_inexistente(self):
-        url = reverse("consulta-list")
-
-        data = {
-            "data": "2026-09-25T10:00:00Z",
-            "profissional": 99999,
-        }
-
-        response = self.client.post(
-            url,
-            data,
-            format="json"
-        )
-
-        self.assertEqual(
-            response.status_code,
-            status.HTTP_400_BAD_REQUEST
-        )
-
     def test_consulta_sem_dados_obrigatorios(self):
         url = reverse("consulta-list")
 
@@ -312,8 +353,41 @@ class ConsultaAPITests(APITestCase):
             status.HTTP_400_BAD_REQUEST
         )
 
+    def test_buscar_consulta_inexistente(self):
+        url = reverse(
+            "consulta-detail",
+            args=[99999]
+        )
+
+        response = self.client.get(url)
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_404_NOT_FOUND
+        )
+
+    def test_consulta_com_data_invalida(self):
+        url = reverse("consulta-list")
+
+        data = {
+            "data": "data-invalida",
+            "profissional": self.profissional.id,
+        }
+
+        response = self.client.post(
+            url,
+            data,
+            format="json"
+        )
+
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_400_BAD_REQUEST
+        )
+
 
 class AuthenticationAPITests(APITestCase):
+
     def setUp(self):
         self.user = User.objects.create_user(
             username="teste",
@@ -343,3 +417,33 @@ class AuthenticationAPITests(APITestCase):
         response = self.client.get("/api/consultas/")
 
         self.assertEqual(response.status_code, 200)
+
+    def test_criar_profissional_sem_autenticacao(self):
+        data = {
+            "nome_social": "João Santos",
+            "profissao": "Dentista",
+            "endereco": "Rua das Flores, 200",
+            "contato": "83988887777",
+        }
+
+        response = self.client.post(
+            "/api/profissionais/",
+            data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 401)
+
+    def test_criar_consulta_sem_autenticacao(self):
+        data = {
+            "data": "2026-09-20T10:00:00Z",
+            "profissional": 1,
+        }
+
+        response = self.client.post(
+            "/api/consultas/",
+            data,
+            format="json"
+        )
+
+        self.assertEqual(response.status_code, 401)
