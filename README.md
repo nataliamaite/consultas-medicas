@@ -153,27 +153,22 @@ Para evitar exposição de informações sensíveis, a aplicação não registra
 
 ## Documentação da API
 
-A API possui documentação OpenAPI gerada automaticamente.
+A API possui documentação interativa baseada em OpenAPI, gerada automaticamente com `drf-spectacular`.
+
+A documentação permite:
+
+- visualizar todos os endpoints disponíveis;
+- consultar parâmetros e modelos de dados;
+- visualizar os códigos de resposta;
+- autenticar utilizando JWT;
+- executar requisições diretamente pela interface do Swagger.
 
 ### Swagger UI
 
-```text
-/api/docs/
-```
-
-### ReDoc
+Interface interativa para explorar e testar a API:
 
 ```text
-/api/redoc/
-```
-
-### OpenAPI Schema
-
-```text
-/api/schema/
-```
-
-A documentação permite visualizar os endpoints, modelos de dados, parâmetros e autenticação JWT.
+http://localhost:8000/api/docs/
 
 ## Testes automatizados
 
